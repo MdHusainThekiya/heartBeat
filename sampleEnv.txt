@@ -1,0 +1,17 @@
+# -- SERVICE CONFIG -- #
+SERVICE_NAME=testService
+
+# -- KAFKA CONFIG -- #
+KAFKA_BROKERS="kafka1:9092,kafka2:9092,kafka3:9092"
+KAFKA_TOPIC_NAME=test_topic
+KAFKA_GROUP_ID=test_group
+KAFKA_OTHER_TOPICS_NAME=<this optional env>"anotherTopic1,anotherTopic2,anotherTopic3"
+
+# -- REDIS CONFIG -- #
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=
+REDIS_DATABASE=0
+
+# -- HEARTBEAT CONFIG -- #
+HEARTBEAT_TIME_IN_SEC=5
