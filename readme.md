@@ -37,5 +37,5 @@ refer `sampleEnv.txt`
 ```bash
   go mod tidy
   bash ./build.sh
-  go run heartBeat
+  go run heartBeat_binary
 ```
