@@ -34,33 +34,46 @@ func cronListner() {
 	var epoch string = strconv.FormatInt(time.Now().Unix(), 10);
 	epochData, err := lib.RedisHGetAll(epoch);
 
+	fmt.Fprintf(os.Stderr, "::[heartBeat.go]::cronListner::[%v]::epochData: %v\n", epoch, epochData);
+	
 	if (err != nil) {
-		fmt.Fprintf(os.Stderr, "failed to hgetall at current epoch : %v,\n epoch: %v\n", epochData, epoch);
+		fmt.Fprintf(os.Stderr, "failed to hgetall at current epoch : %v,\n epoch: %v\n", epochData, err);
 	} else if (len(epochData) != 0) {
-		epochData["heartBeatEpoch"] = epoch;
-		heartBeatAction(epochData);
+		_, err := lib.RedisDEL(epoch);
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "failed to RedisDEL current epoch : %v \n error : %v", epoch, err);
+		}
+		heartBeatAction(epoch, epochData);
 	}
 }
 
-func heartBeatAction(epochData map[string]string) {
-
-	if (epochData["callBackTopicName"] == "" || epochData["tenantDetails"] == "") {
-		fmt.Fprintf(os.Stderr, "callBackTopicName or tenantDetails not found in heartBeat epoch epochData : %v", epochData);
-	} else {
+func heartBeatAction(epoch string, epochData map[string]string) {
 		
-		epochData["kafkaEventName"] = "heartBeat";
-		epochData["requesterServiceName"] = config.SERVICE_NAME;
+	for uuid, srtData := range epochData {
 
-		jsonBytes, err := json.Marshal(epochData);
+		var data map[string]interface{};
 
-		if (err != nil) {
-			fmt.Fprintf(os.Stderr, "failed to json.marshal epochData : %v\n", epochData);
+		err := json.Unmarshal([]byte(srtData), &data);
+		if (err != nil){
+			fmt.Fprintf(os.Stderr, "epoch data parse error,  uuid : %v,\n strData: %v\n, err: %v", uuid, srtData, err);
+			continue;
 		}
 
-		strEpochData := string(jsonBytes);
+		if (data["callBackQueueName"] == "" || data["tenantDetails"] == "") {
+			fmt.Fprintf(os.Stderr, "callBackQueueName or tenantDetails not found for this UUID, uuid : %v,\n data: %v\n", uuid, data);
+			continue;
+		}
 
-		lib.SendKafka(epochData["callBackTopicName"], strEpochData)
+		data["eventName"] = "heartBeat";
+		data["requesterServiceName"] = config.SERVICE_NAME;
+
+		sendErr := lib.SendToQueue(fmt.Sprintf("%v", data["callBackQueueName"]), data);
+		if sendErr != nil {
+			fmt.Fprintf(os.Stderr, "data SendToQueue error, epoch : %v,\n data: %v\n err: %v\n", epoch, data, err);
+		}
 
 	}
+	
+	
 
 }

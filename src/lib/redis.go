@@ -9,7 +9,7 @@ import (
 	redis "github.com/redis/go-redis/v9"
 )
 
-var ctx = context.Background();
+var redisCTX = context.Background();
 var rdb *redis.Client;
 
 func RedisConnect() {
@@ -28,10 +28,22 @@ func RedisConnect() {
 
 func RedisHGetAll(key string) (map[string]string, error) {
 
-	result, err := rdb.HGetAll(ctx, key).Result();
+	result, err := rdb.HGetAll(redisCTX, key).Result();
 
 	if (err != nil) {
 		return nil, err;
+	}
+
+	return result, nil;
+
+}
+
+func RedisDEL(key ...string) (int64, error) {
+
+	result, err := rdb.Del(redisCTX, key...).Result();
+
+	if (err != nil) {
+		return 0, err;
 	}
 
 	return result, nil;

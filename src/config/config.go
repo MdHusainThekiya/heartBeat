@@ -9,17 +9,15 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var SERVICE_NAME           	string = "";
-var KAFKA_BROKERS          	string = "";
-var KAFKA_TOPIC_NAME       	string = "";
-var KAFKA_OTHER_TOPICS_NAME string = "";
-var KAFKA_GROUP_ID         	string = "";
-var KAFKA_CLIENT_ID        	string = "";
-var REDIS_HOST        			string = "";
-var REDIS_PORT        			string = "";
-var REDIS_PASSWORD        	string = "";
-var REDIS_DATABASE        	int = 0;
-var HEARTBEAT_TIME_IN_SEC   int = 1;
+var SERVICE_NAME          string = "";
+var RABBIT_MQ_URL         string = "";
+var RABBIT_MQ_CLIENT_NAME string = "";
+var RABBIT_MQ_QUEUE_NAME  string = "heartBeat";
+var REDIS_HOST        		string = "";
+var REDIS_PORT        		string = "";
+var REDIS_PASSWORD        string = "";
+var REDIS_DATABASE        int = 0;
+var HEARTBEAT_TIME_IN_SEC int = 1;
 
 func LoadConfig() error {
 
@@ -30,12 +28,10 @@ func LoadConfig() error {
 		return err;
 	}
 
-	SERVICE_NAME 				 	 	 = os.Getenv("SERVICE_NAME");
-	KAFKA_BROKERS					 	 = os.Getenv("KAFKA_BROKERS");
-	KAFKA_TOPIC_NAME			 	 = os.Getenv("KAFKA_TOPIC_NAME");
-	KAFKA_OTHER_TOPICS_NAME  = os.Getenv("KAFKA_OTHER_TOPICS_NAME");
-	KAFKA_GROUP_ID				 	 = os.Getenv("KAFKA_GROUP_ID");
-	KAFKA_CLIENT_ID				 	 = SERVICE_NAME + "_" + uuid.New().String();
+	SERVICE_NAME 				 	   = os.Getenv("SERVICE_NAME");
+	RABBIT_MQ_URL 				   = os.Getenv("RABBIT_MQ_URL");
+	RABBIT_MQ_CLIENT_NAME	   = SERVICE_NAME + "_" + uuid.New().String();
+	RABBIT_MQ_QUEUE_NAME 	   = os.Getenv("RABBIT_MQ_QUEUE_NAME");
 	REDIS_HOST				 			 = os.Getenv("REDIS_HOST");
 	REDIS_PORT				 			 = os.Getenv("REDIS_PORT");
 	REDIS_PASSWORD				 	 = os.Getenv("REDIS_PASSWORD");

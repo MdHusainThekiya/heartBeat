@@ -13,7 +13,7 @@ func main() {
 		panic(err);
 	}
 
- 	err = lib.KafkaConnect(eventListner);
+ 	err = lib.RabbitMQConnect(eventListner);
 	if (err != nil) {
 		panic(err);
 	}
