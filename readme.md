@@ -30,12 +30,32 @@ refer `sampleEnv.txt`
 ## Installation
 
     0. required go to be installed
-    1. required kafka with minimum single broker and topicName created with it
+    1. required rabbitMQ installed
     2. required redis connection
     3. run following commands
 
 ```bash
-  go mod tidy
-  bash ./build.sh
-  go run heartBeat_binary
+go mod tidy
+bash ./build.sh
+go run heartBeat_binary
+```
+
+## Optional docker-compose.yml
+```yml
+version: '3'
+services:
+  redis:
+    image: redis:7.2.2-alpine
+    container_name: redis
+    ports:
+      - 6379:6379
+    environment:
+      - TZ=Asia/Kolkata
+
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    container_name: rabbitmq
+    ports:
+      - 5672:5672
+      - 15672:15672
 ```
