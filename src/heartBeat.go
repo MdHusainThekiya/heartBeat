@@ -39,10 +39,13 @@ func cronListner() {
 	if (err != nil) {
 		fmt.Fprintf(os.Stderr, "failed to hgetall at current epoch : %v,\n epoch: %v\n", epochData, err);
 	} else if (len(epochData) != 0) {
+
+		// delete epoch key
 		_, err := lib.RedisDEL(epoch);
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "failed to RedisDEL current epoch : %v \n error : %v", epoch, err);
 		}
+
 		heartBeatAction(epoch, epochData);
 	}
 }
@@ -50,6 +53,12 @@ func cronListner() {
 func heartBeatAction(epoch string, epochData map[string]string) {
 		
 	for uuid, srtData := range epochData {
+
+		// delete uuid epoch mapping
+		_, rdelError := lib.RedisDEL(uuid);
+		if rdelError != nil {
+			fmt.Fprintf(os.Stderr, "failed to RedisDEL current uuid-epoch mapping : %v \n error : %v", epoch, uuid);
+		}
 
 		var data map[string]interface{};
 

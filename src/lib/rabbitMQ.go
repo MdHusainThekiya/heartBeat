@@ -33,13 +33,13 @@ func RabbitMQConnect(eventListner func([]byte)) error {
 	// Assign channel for consumer
 	consumerConn, err := amqp.Dial(config.RABBIT_MQ_URL)
 	if (err != nil) {
-		log.Panicln("::[rabbitMQ.go]::amqp connection error...");
+		log.Panicln("::[rabbitMQ.go]::amqp connection error...", err);
 		defer consumerConn.Close()
 		return err
 	}
 	consumerChannel, err := consumerConn.Channel();
 	if (err != nil) {
-		log.Panicln("::[rabbitMQ.go]::amqp get channel error...");
+		log.Panicln("::[rabbitMQ.go]::amqp get channel error...", err);
 		defer consumerChannel.Close()
 		defer consumerConn.Close()
 		return err
@@ -50,7 +50,7 @@ func RabbitMQConnect(eventListner func([]byte)) error {
 	// Assign channel for producer
 	producerConn, err := amqp.Dial(config.RABBIT_MQ_URL)
 	if (err != nil) {
-		log.Panicln("::[rabbitMQ.go]::amqp connection error...");
+		log.Panicln("::[rabbitMQ.go]::amqp connection error...", err);
 		defer consumerChannel.Close()
 		defer consumerConn.Close()
 		defer producerConn.Close()
@@ -58,7 +58,7 @@ func RabbitMQConnect(eventListner func([]byte)) error {
 	}
 	producerChannel, err := producerConn.Channel();
 	if (err != nil) {
-		log.Panicln("::[rabbitMQ.go]::amqp get channel error...");
+		log.Panicln("::[rabbitMQ.go]::amqp get channel error...", err);
 		defer consumerChannel.Close()
 		defer consumerConn.Close()
 		defer producerChannel.Close()
@@ -79,7 +79,7 @@ func RabbitMQConnect(eventListner func([]byte)) error {
 		nil,     // arguments
 	)
 	if (err != nil) {
-		log.Panicln("::[rabbitMQ.go]::declare consumerQ error...");
+		log.Panicln("::[rabbitMQ.go]::declare consumerQ error...", err);
 		defer consumerChannel.Close()
 		defer consumerConn.Close()
 		defer producerChannel.Close()
@@ -98,7 +98,7 @@ func RabbitMQConnect(eventListner func([]byte)) error {
 		nil,    // args
 	)
 	if (err != nil) {
-		log.Panicln("::[rabbitMQ.go]::declare consumerQ error...");
+		log.Panicln("::[rabbitMQ.go]::declare consumerQ error...", err);
 		defer consumerChannel.Close()
 		defer consumerConn.Close()
 		defer producerChannel.Close()
@@ -131,36 +131,25 @@ func SendToQueue(queueName string, sendingData map[string]interface{}) error {
 
 	if (err != nil) {
 		fmt.Fprintf(os.Stderr, "failed to json.marshal epochData : %v\n", sendingData);
+		return nil
 	}
 
 	strEpochData := string(jsonBytes);
 
-	producerQ, err := rabbitMQProducerChannel.QueueDeclare(
-		queueName, // name
-		false,   // durable
-		false,   // delete when unused
-		false,   // exclusive
-		false,   // no-wait
-		nil,     // arguments
-	)
-	if (err != nil) {
-		log.Panicln("::[rabbitMQ.go]::declare producerQ error...");
-		return err;
-	}
-
 	err = rabbitMQProducerChannel.PublishWithContext(amqpCTX,
 		"",     // exchange
-		producerQ.Name, // routing key
+		queueName, // routing key
 		false,  // mandatory
 		false,  // immediate
 		amqp.Publishing {
 			ContentType: "text/plain",
 			Body:        []byte(strEpochData),
 		})
-		if (err != nil) {
-			log.Panicln("::[rabbitMQ.go]::message publish error...");
-			return err
-		}
+
+	if (err != nil) {
+		fmt.Fprintf(os.Stderr, "::[rabbitMQ.go]::message publish error... %v\n", err);
+		return nil
+	}
 	
 	return nil
 
