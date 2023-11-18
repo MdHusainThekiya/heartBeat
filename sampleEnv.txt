@@ -10,6 +10,8 @@ KAFKA_OTHER_TOPICS_NAME=<this optional env>"anotherTopic1,anotherTopic2,anotherT
 # -- RABBITMQ CONFIG (available from v2.0.0 onwards) -- #
 RABBIT_MQ_URL = "amqp://localhost:5672"
 RABBIT_MQ_QUEUE_NAME = "heartBeat"
+RABBIT_MQ_CONNECTION_RETRIES = 60
+RABBIT_MQ_CONNECTION_RETRY_SEC = 5
 
 # -- REDIS CONFIG -- #
 REDIS_HOST=localhost
