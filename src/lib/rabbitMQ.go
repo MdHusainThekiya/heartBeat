@@ -17,6 +17,27 @@ var amqpCTX = context.Background();
 var rabbitMQConsumerChannel *amqp.Channel;
 var rabbitMQProducerChannel *amqp.Channel;
 
+func retriableMQConnect() (*amqp.Connection, error ) {
+
+	for i := 0; i < config.RABBIT_MQ_CONNECTION_RETRIES; i++ {
+		conn, err := amqp.Dial(config.RABBIT_MQ_URL)
+		if err == nil {
+			fmt.Fprintln(os.Stderr,"::[rabbitMQ.go]::got rabbitMQ connection...");
+			return conn, nil
+		}
+
+		fmt.Fprintln(os.Stderr,"::[rabbitMQ.go]::amqp connection error...", err);
+		
+		if (i+1 < config.RABBIT_MQ_CONNECTION_RETRIES) {
+			time.Sleep(time.Duration(config.RABBIT_MQ_CONNECTION_RETRY_SEC) * time.Second)
+			fmt.Fprintln(os.Stderr,"::[rabbitMQ.go]::retiry to connect amqp...");
+			fmt.Fprintf(os.Stderr,"::[rabbitMQ.go]::retryCount : %v, retryingInterval : %v sec", i+1, config.RABBIT_MQ_CONNECTION_RETRY_SEC);
+		}
+	}
+
+	return nil, fmt.Errorf("failed to connect to RabbitMQ after %d retries", config.RABBIT_MQ_CONNECTION_RETRIES);
+}
+
 func RabbitMQConnect(eventListner func([]byte)) error {
 
 	fmt.Fprintln(os.Stderr,"::[rabbitMQ.go]::starting rabbitMQ connection...");
@@ -31,16 +52,13 @@ func RabbitMQConnect(eventListner func([]byte)) error {
 	}
 
 	// Assign channel for consumer
-	consumerConn, err := amqp.Dial(config.RABBIT_MQ_URL)
+	consumerConn, err := retriableMQConnect();
 	if (err != nil) {
-		log.Panicln("::[rabbitMQ.go]::amqp connection error...", err);
-		defer consumerConn.Close()
 		return err
 	}
 	consumerChannel, err := consumerConn.Channel();
 	if (err != nil) {
 		log.Panicln("::[rabbitMQ.go]::amqp get channel error...", err);
-		defer consumerChannel.Close()
 		defer consumerConn.Close()
 		return err
 	}
@@ -48,12 +66,10 @@ func RabbitMQConnect(eventListner func([]byte)) error {
 	fmt.Fprintln(os.Stderr,"::[rabbitMQ.go]::got consumer connection...");
 
 	// Assign channel for producer
-	producerConn, err := amqp.Dial(config.RABBIT_MQ_URL)
+	producerConn, err := retriableMQConnect();
 	if (err != nil) {
-		log.Panicln("::[rabbitMQ.go]::amqp connection error...", err);
 		defer consumerChannel.Close()
 		defer consumerConn.Close()
-		defer producerConn.Close()
 		return err
 	}
 	producerChannel, err := producerConn.Channel();
@@ -61,7 +77,6 @@ func RabbitMQConnect(eventListner func([]byte)) error {
 		log.Panicln("::[rabbitMQ.go]::amqp get channel error...", err);
 		defer consumerChannel.Close()
 		defer consumerConn.Close()
-		defer producerChannel.Close()
 		defer producerConn.Close()
 		return err
 	}
