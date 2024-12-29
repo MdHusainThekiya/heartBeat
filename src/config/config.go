@@ -20,6 +20,7 @@ var REDIS_PORT        						 string	= "";
 var REDIS_PASSWORD        				 string	= "";
 var REDIS_DATABASE        				 int		= 0;
 var HEARTBEAT_TIME_IN_SEC 				 int		= 1;
+var RABBIT_MQ_CRON_QUEUE_NAME			 string	= "heartBeat";
 
 func LoadConfig() error {
 
@@ -39,6 +40,7 @@ func LoadConfig() error {
 	REDIS_PASSWORD				 	 		 		 = os.Getenv("REDIS_PASSWORD");
 	REDIS_DATABASE, _		  	 		 		 = strconv.Atoi(os.Getenv("REDIS_DATABASE"));
 	HEARTBEAT_TIME_IN_SEC, _ 		 		 = strconv.Atoi(os.Getenv("HEARTBEAT_TIME_IN_SEC"));
+	RABBIT_MQ_CRON_QUEUE_NAME 	     = os.Getenv("RABBIT_MQ_CRON_QUEUE_NAME");
 
 	fmt.Fprintln(os.Stderr,"::[config.go]:: env loading completed.....");
 

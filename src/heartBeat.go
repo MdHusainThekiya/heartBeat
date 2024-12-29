@@ -31,7 +31,8 @@ func InitHeartBeat() {
 }
 
 func cronListner() {
-	var epoch string = strconv.FormatInt(time.Now().Unix(), 10);
+	now := time.Now();
+	var epoch string = strconv.FormatInt(now.Unix(), 10);
 	epochData, err := lib.RedisHGetAll(epoch);
 
 	fmt.Fprintf(os.Stderr, "::[heartBeat.go]::cronListner::[%v]::epochData: %v\n", epoch, epochData);
@@ -47,6 +48,20 @@ func cronListner() {
 		}
 
 		heartBeatAction(epoch, epochData);
+	}
+
+	// daily tasks at exactly 12:00 AM
+	if now.Hour() == 0 && now.Minute() == 39 {
+		var data map[string]interface{} = make(map[string]interface{})
+		data["callBackQueueName"] = config.RABBIT_MQ_CRON_QUEUE_NAME
+		data["eventName"] = "heartBeat";
+		data["subEventName"] = "daily_cron_event";
+		data["requesterServiceName"] = config.SERVICE_NAME;
+
+		sendErr := lib.SendToQueue(fmt.Sprintf("%v", data["callBackQueueName"]), data);
+		if sendErr != nil {
+			fmt.Fprintf(os.Stderr, "data SendToQueue error, epoch : %v,\n data: %v\n err: %v\n", epoch, data, err);
+		}
 	}
 }
 
