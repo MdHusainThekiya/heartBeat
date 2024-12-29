@@ -40,7 +40,7 @@ services:
       - 15672:15672
 
   heartbeat:
-    image: mdhusainthekiya/heartbeat:v2.0.1
+    image: mdhusainthekiya/heartbeat:v2.0.2
     container_name: heartbeat
     ports:
       - 4001:4001

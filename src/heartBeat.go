@@ -51,7 +51,7 @@ func cronListner() {
 	}
 
 	// daily tasks at exactly 12:00 AM
-	if now.Hour() == 0 && now.Minute() == 39 {
+	if now.Hour() == 0 && now.Minute() == 0 {
 		var data map[string]interface{} = make(map[string]interface{})
 		data["callBackQueueName"] = config.RABBIT_MQ_CRON_QUEUE_NAME
 		data["eventName"] = "heartBeat";
