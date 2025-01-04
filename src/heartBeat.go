@@ -52,12 +52,12 @@ func cronListner() {
 
 	// daily tasks at exactly 12:00 AM
 	if now.Hour() == 0 && now.Minute() == 0 {
-		sendDailyCronEvent(epoch);
+		sendDailyCronEvent("daily_cron_event", epoch);
 	}
 
 	// tasks of every 5 mins
 	if now.Minute() % 5 == 0 {
-		sendDailyCronEvent(epoch);
+		sendDailyCronEvent("five_min_cron_event", epoch);
 	}
 }
 
@@ -98,11 +98,11 @@ func heartBeatAction(epoch string, epochData map[string]string) {
 
 }
 
-func sendDailyCronEvent(epoch string) {
+func sendDailyCronEvent(eventName string, epoch string) {
 	var data map[string]interface{} = make(map[string]interface{})
 	data["callBackQueueName"] = config.RABBIT_MQ_CRON_QUEUE_NAME
 	data["eventName"] = "heartBeat";
-	data["subEventName"] = "daily_cron_event";
+	data["subEventName"] = eventName;
 	data["requesterServiceName"] = config.SERVICE_NAME;
 
 	sendErr := lib.SendToQueue(fmt.Sprintf("%v", data["callBackQueueName"]), data);
