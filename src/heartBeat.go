@@ -52,16 +52,12 @@ func cronListner() {
 
 	// daily tasks at exactly 12:00 AM
 	if now.Hour() == 0 && now.Minute() == 0 {
-		var data map[string]interface{} = make(map[string]interface{})
-		data["callBackQueueName"] = config.RABBIT_MQ_CRON_QUEUE_NAME
-		data["eventName"] = "heartBeat";
-		data["subEventName"] = "daily_cron_event";
-		data["requesterServiceName"] = config.SERVICE_NAME;
+		sendDailyCronEvent(epoch);
+	}
 
-		sendErr := lib.SendToQueue(fmt.Sprintf("%v", data["callBackQueueName"]), data);
-		if sendErr != nil {
-			fmt.Fprintf(os.Stderr, "data SendToQueue error, epoch : %v,\n data: %v\n err: %v\n", epoch, data, err);
-		}
+	// tasks of every 5 mins
+	if now.Minute() % 5 == 0 {
+		sendDailyCronEvent(epoch);
 	}
 }
 
@@ -100,4 +96,17 @@ func heartBeatAction(epoch string, epochData map[string]string) {
 	
 	
 
+}
+
+func sendDailyCronEvent(epoch string) {
+	var data map[string]interface{} = make(map[string]interface{})
+	data["callBackQueueName"] = config.RABBIT_MQ_CRON_QUEUE_NAME
+	data["eventName"] = "heartBeat";
+	data["subEventName"] = "daily_cron_event";
+	data["requesterServiceName"] = config.SERVICE_NAME;
+
+	sendErr := lib.SendToQueue(fmt.Sprintf("%v", data["callBackQueueName"]), data);
+	if sendErr != nil {
+		fmt.Fprintf(os.Stderr, "data SendToQueue error, epoch : %v,\n data: %v\n sendErr: %v\n", epoch, data, sendErr);
+	}
 }
