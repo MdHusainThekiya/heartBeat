@@ -39,6 +39,7 @@ func cronListner() {
 	
 	if (err != nil) {
 		fmt.Fprintf(os.Stderr, "failed to hgetall at current epoch : %v,\n epoch: %v\n", epochData, err);
+		panic(err);
 	} else if (len(epochData) != 0) {
 
 		// delete epoch key

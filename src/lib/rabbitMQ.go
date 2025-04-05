@@ -163,7 +163,7 @@ func SendToQueue(queueName string, sendingData map[string]interface{}) error {
 
 	if (err != nil) {
 		fmt.Fprintf(os.Stderr, "::[rabbitMQ.go]::message publish error... %v\n", err);
-		return nil
+		panic(err);
 	}
 	
 	return nil
