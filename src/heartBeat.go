@@ -56,9 +56,19 @@ func cronListner() {
 		sendDailyCronEvent("daily_cron_event", epoch);
 	}
 
+	// tasks of every 10 mins
+	if now.Minute() % 10 == 0 {
+		sendDailyCronEvent("ten_min_cron_event", epoch);
+	}
+
 	// tasks of every 5 mins
 	if now.Minute() % 5 == 0 {
 		sendDailyCronEvent("five_min_cron_event", epoch);
+	}
+
+	// tasks of every 2 mins
+	if now.Minute() % 2 == 0 {
+		sendDailyCronEvent("two_min_cron_event", epoch);
 	}
 }
 
