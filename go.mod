@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/google/uuid v1.3.1
 	github.com/joho/godotenv v1.5.1
-	github.com/rabbitmq/amqp091-go v1.9.0
+	github.com/rabbitmq/amqp091-go v1.15.0
 	github.com/redis/go-redis/v9 v9.1.0
 	github.com/robfig/cron/v3 v3.0.1
 )
